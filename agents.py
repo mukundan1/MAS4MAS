@@ -1,0 +1,151 @@
+# agents.py
+"""
+Defines the individual agents in the meta-system:
+Planner, Coder, Tester, Deployer
+"""
+import os
+import json
+from llm import call_llm
+import prompts
+
+class BaseAgent:
+    """Base class for all agents"""
+    def __init__(self, name: str):
+        self.name = name
+
+    def run(self, state: dict) -> dict:
+        """Each agent updates the state dictionary."""
+        raise NotImplementedError
+
+class PlannerAgent(BaseAgent):
+    def __init__(self):
+        super().__init__("PlannerAgent")
+
+    def run(self, state: dict) -> dict:
+        print(f"[{self.name}] Planning system...")
+        prompt = prompts.PLANNER_PROMPT.replace("{{USER_PROMPT}}", state["user_prompt"])
+        response = call_llm("planner", prompts.PLANNER_PROMPT, state["user_prompt"])
+        
+        try:
+            state["plan"] = json.loads(response)
+            print(f"[{self.name}] Plan generated for project: {state['plan'].get('project_name')}")
+        except json.JSONDecodeError:
+            print(f"[{self.name}] Error: Planner output was not valid JSON.")
+            print(f"Raw output: {response}")
+            state["error"] = "Planner failed to generate valid JSON plan."
+        return state
+
+class CoderAgent(BaseAgent):
+    def __init__(self):
+        super().__init__("CoderAgent")
+
+    def run(self, state: dict) -> dict:
+        print(f"[{self.name}] Generating code...")
+        
+        if "test_results" in state and not state["test_results"]["success"]:
+            # This is a refinement loop
+            print(f"[{self.name}] Refining code based on test report.")
+            user_prompt = prompts.CODER_REFINEMENT_PROMPT
+            user_prompt = user_prompt.replace("{{PLAN}}", json.dumps(state["plan"], indent=2))
+            user_prompt = user_prompt.replace("{{PREVIOUS_CODE}}", json.dumps(state["generated_code"], indent=2))
+            user_prompt = user_prompt.replace("{{TEST_REPORT}}", json.dumps(state["test_results"], indent=2))
+        else:
+            # This is the first coding attempt
+            user_prompt = prompts.CODER_PROMPT.replace("{{PLAN}}", json.dumps(state["plan"], indent=2))
+
+        response = call_llm("coder", user_prompt, "") # User prompt is embedded in system for coding
+        
+        try:
+            state["generated_code"] = json.loads(response)
+            print(f"[{self.name}] Code generated for {len(state['generated_code'])} files.")
+        except json.JSONDecodeError:
+            print(f"[{self.name}] Error: Coder output was not valid JSON.")
+            print(f"Raw output: {response}")
+            state["error"] = "Coder failed to generate valid JSON code."
+        return state
+
+class TesterAgent(BaseAgent):
+    def __init__(self):
+        super().__init__("TesterAgent")
+
+    def run(self, state: dict) -> dict:
+        print(f"[{self.name}] Testing code...")
+        
+        plan_str = json.dumps(state["plan"], indent=2)
+        code_str = json.dumps(state["generated_code"], indent=2)
+        
+        user_prompt = prompts.TESTER_PROMPT
+        user_prompt = user_prompt.replace("{{PLAN}}", plan_str)
+        user_prompt = user_prompt.replace("{{CODE_TO_TEST}}", code_str)
+
+        response = call_llm("tester", user_prompt, "")
+        
+        try:
+            state["test_results"] = json.loads(response)
+            if state["test_results"]["success"]:
+                print(f"[{self.name}] Test PASSED.")
+            else:
+                print(f"[{self.name}] Test FAILED. Errors: {state['test_results']['errors']}")
+        except json.JSONDecodeError:
+            print(f"[{self.name}] Error: Tester output was not valid JSON.")
+            print(f"Raw output: {response}")
+            state["error"] = "Tester failed to generate valid JSON report."
+        return state
+
+class DeployerAgent(BaseAgent):
+    def __init__(self):
+        super().__init__("DeployerAgent")
+
+    def run(self, state: dict) -> dict:
+        print(f"[{self.name}] Deploying to localhost...")
+        
+        if not state.get("test_results", {}).get("success", False):
+            print(f"[{self.name}] Deployment skipped: Code has not passed tests.")
+            state["error"] = "Deployment failed: tests not passed."
+            return state
+
+        project_name = state.get("plan", {}).get("project_name", "generated_agent_system")
+        base_dir = os.path.join(os.getcwd(), project_name)
+        
+        try:
+            os.makedirs(base_dir, exist_ok=True)
+            print(f"[{self.name}] Created directory: {base_dir}")
+
+            code_files = state.get("generated_code", {})
+            for filename, content in code_files.items():
+                filepath = os.path.join(base_dir, filename)
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(content)
+                print(f"[{self.name}] Wrote file: {filepath}")
+
+            # Create a README.md
+            readme_content = f"""
+# {project_name}
+
+This multi-agent system was auto-generated by the Meta-Agentic System.
+
+## 🚀 Setup
+
+1.  Make sure you have Python 3.9+ installed.
+2.  Create a virtual environment:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: .\\venv\\Scripts\\activate
+    Install dependencies:
+        pip install -r requirements.txt
+🏃‍♀️ Run
+To run the system, execute the main file:
+
+python main.py""" 
+            with open(os.path.join(base_dir, "README.md"), "w", encoding="utf-8") as f: 
+                f.write(readme_content) 
+                print(f"[{self.name}] Wrote file: {os.path.join(base_dir, 'README.md')}")
+                state["deployment_location"] = base_dir
+                print(f"\n✅ System '{project_name}' deployed successfully!")
+                print(f"To run it:\n\n  cd {project_name}\n  pip install -r requirements.txt\n  python main.py\n")
+
+        except Exception as e:
+            print(f"[{self.name}] Error during deployment: {e}")
+            state["error"] = str(e)
+            
+        return state
