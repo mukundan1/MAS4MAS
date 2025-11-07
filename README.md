@@ -145,7 +145,9 @@ mas/
 
 The application requires the following API keys (stored in `.env`):
 
-- **OPENAI_API_COMPATIBLE_KEY**: Required for all agents using GPT-4o-mini
+- **OPENAI_API_COMPATIBLE_KEY**: Required for all agents 
+  - kindly update ```export OPENAI_BASE_URL=<base_url_FOR_compatible_api_calling>```
+  - Base_Url for the models changes according to the provider. Please check with your provider.
   - Get your key from: https://platform.openai.com/api-keys
 
 - **E2B_API_KEY**: Required for code interpreter sandbox
@@ -185,7 +187,7 @@ All agents currently use `gpt-4o-mini` model. You can modify the `llm` parameter
   ```
   (Optional) Specify the framework using ```--framework (crew | autogen)```
 
-3. Using the agents.yaml, run the command praisonai
+3. Using the agents.yaml, run the command praisonai in terminal with activated venv
 
 ### Task Configuration
 
@@ -298,7 +300,7 @@ MIT License
 ## 🙏 Acknowledgments
 
 Built with:
-- [PraisonAI Agents](https://github.com/praisonai/praisonai-agents) - Multi-agent framework
+- [PraisonAI Agents](https://github.com/MervinPraison/PraisonAI) - Multi-agent framework
 - [OpenAI API Compatible Models](https://openai.com) - Language model
 - [E2B Code Interpreter](https://e2b.dev/) - Sandboxed code execution
 - [DuckDuckGo](https://duckduckgo.com/) - Internet search
@@ -307,7 +309,7 @@ Built with:
 
 ## 📧 Support
 
-For issues, questions, or contributions, please [create an issue](<repository-url>/issues) or contact the maintainers.
+For issues, questions, or contributions, please [create an issue](https://github.com/mukundan1/MAS4MAS/issues) or contact the maintainers.
 
 ---
 
