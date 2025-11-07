@@ -33,33 +33,33 @@ Internet Search  Internet Search    Code Execution  Testing      Deployment
 - **Tools**: 
   - `create_chat_interface()` - Creates interactive chat interface
   - `internet_search_tool()` - Searches the internet for information
-- **Model**: GPT-4o-mini
+- **Model**: OpenAI API-Compatible Models
 - **Function**: Collects user requirements and provides initial responses
 
 #### PlannerAgent
 - **Purpose**: Creates detailed plans and specifications
 - **Tools**: 
   - `internet_search_tool()` - Researches implementation options
-- **Model**: GPT-4o-mini
+- **Model**: OpenAI API-Compatible Models
 - **Output**: JSON specification of the multi-agent system
 
 #### CoderAgent
 - **Purpose**: Writes and executes Python code
 - **Tools**: 
   - `code_interpreter()` - Executes Python code in a sandboxed environment
-- **Model**: GPT-4o-mini
+- **Model**: OpenAI API-Compatible Models
 - **Function**: Generates code based on plans and executes it safely
 
 #### TesterAgent
 - **Purpose**: Validates generated code and ensures quality
-- **Model**: GPT-4o-mini
+- **Model**: OpenAI API-Compatible Models
 - **Function**: Tests code against specifications
 
 #### DeployerAgent
 - **Purpose**: Handles deployment and system setup
 - **Tools**: 
   - `internet_search_tool()` - Researches deployment options
-- **Model**: GPT-4o-mini
+- **Model**: OpenAI API-Compatible Models
 - **Function**: Deploys the final system
 
 ---
@@ -84,7 +84,7 @@ Executes Python code in a secure sandboxed environment using E2B:
 ## 📋 Prerequisites
 
 - Python 3.9 or higher
-- OpenAI API key (for GPT-4o-mini)
+- OpenAI API key (for OpenAI API-Compatible Models)
 - E2B API key (for code interpreter sandbox)
 
 ---
@@ -113,7 +113,7 @@ pip install -r requirements.txt
 Create a `.env` file in the project root:
 
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY=your_openai_api_compatible_model_key_here
 E2B_API_KEY=your_e2b_api_key_here
 ```
 
@@ -145,7 +145,7 @@ mas/
 
 The application requires the following API keys (stored in `.env`):
 
-- **OPENAI_API_KEY**: Required for all agents using GPT-4o-mini
+- **OPENAI_API_COMPATIBLE_KEY**: Required for all agents using GPT-4o-mini
   - Get your key from: https://platform.openai.com/api-keys
 
 - **E2B_API_KEY**: Required for code interpreter sandbox
@@ -259,7 +259,7 @@ Task(
 
 2. **Import Errors**
    - Make sure all dependencies are installed: `pip install -r requirements.txt`
-   - Verify you're using the correct Python version (3.9+)
+   - Verify you're using the correct Python version
 
 3. **Code Execution Errors**
    - Check E2B API key is valid
