@@ -1,4 +1,5 @@
-import os
+import os, json, asyncio
+from tabnanny import verbose
 from dotenv import load_dotenv
 from praisonaiagents import Agent, Task, PraisonAIAgents
 from duckduckgo_search import DDGS
@@ -7,7 +8,9 @@ from e2b_code_interpreter import Sandbox
 load_dotenv()
 
 # Access API key from environment variable
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY") or input("Enter OpenAI (Compatible if using other models) API key: ")
+
+
 
 # 1. Define the tool
 def internet_search_tool(query: str):
@@ -73,14 +76,19 @@ def create_chat_interface():
 #         except Exception as e:
 #             print(f"Error: {str(e)}")
     
-# if __name__ == "__main__":
-#     create_chat_interface()
+
+async def parallel_tasks():
+    tasks = [agent1.task(), agent2.task()]
+    results = await asyncio.gather(*tasks)
+
 
 InteractiveChatAgent = Agent(
     name="InteractiveChatAgent",
+    backstory="",
+    goal="",
     instructions="""
-    You are a conversational assistant. First use the tool create_chat_interface tool. You have access to the internet_search_tool tool. 
-    You can use this tool to search the internet for information so to provide with options to the user's prompt.
+    You are a conversational assistant. Always execute the tool create_chat_interface tool. You have access to the internet_search_tool tool. 
+    You can use this tool to search the internet for information to provide with options to the user's prompt.
     You are given a user prompt and you need to create a JSON specification of the multi-agent system.
 
     FORMAT GUIDELINES:
@@ -93,6 +101,8 @@ InteractiveChatAgent = Agent(
     - JSON Specification of the multi-agent system
 
     """,
+    verbose=True,
+    markdown=True,
     llm="gpt-4o-mini",  # Using the specified model
     api_key=api_key,# Pass API key securely
     tools=[create_chat_interface, internet_search_tool] 
@@ -158,6 +168,16 @@ planning_task = Task(
     async_execution=True
 )
 
+decision_task = Task(
+    type="decision",
+    name="decision",
+    context=[info_gather_task],
+    conditions={
+        "success": ["planner_task"],
+        "failure": ["loop_interactive_task"]
+    }
+)
+
 
 coding_task = Task(
     name="coding",
@@ -181,3 +201,6 @@ expert_team = PraisonAIAgents(
 # Start the multi-agent system
 response = expert_team.start()
 print(response)
+
+if __name__ == "__main__":
+    create_chat_interface()
