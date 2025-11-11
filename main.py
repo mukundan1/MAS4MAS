@@ -1,14 +1,63 @@
-import os, json, asyncio
+
+
+#----------------------------------------------------
+#IMPORTS
+
+#----------------------------------------------------
+
+
+import os, json, asyncio, logging
 from tabnanny import verbose
 from dotenv import load_dotenv
 from praisonaiagents import Agent, Task, PraisonAIAgents
 from duckduckgo_search import DDGS
-from e2b_code_interpreter import Sandbox
-# Load environment variables from .env file
+from e2b_code_interpreter import Sandbox    
+
+from praisonaiagents import (
+    register_display_callback,
+    error_logs
+)
+
+
+#----------------------------------------------------
+
+#LOG DEF
+
+#----------------------------------------------------
+
+
+
+
+
+# Register a custom logger
+def log_to_file(event_type, data):
+    with open("agent_logs.txt", "a") as f:
+        f.write(f"[{event_type}] {data}\n")
+
+register_display_callback(log_to_file)
+
+# Check for errors
+errors = error_logs(agent_name="AnalysisAgent")
+if errors:
+    print(f"Found {len(errors)} errors")
+
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='- %(levelname)s - %(message)s:%(asctime)s ')
+logger = logging.getLogger(__name__)
+
 load_dotenv()
 
 # Access API key from environment variable
 api_key = os.getenv("OPENAI_API_KEY") or input("Enter OpenAI (Compatible if using other models) API key: ")
+
+
+#----------------------------------------------------
+#TOOL DEF
+
+
+#----------------------------------------------------
+
 
 
 
@@ -77,9 +126,20 @@ def create_chat_interface():
 #             print(f"Error: {str(e)}")
     
 
-async def parallel_tasks():
-    tasks = [agent1.task(), agent2.task()]
-    results = await asyncio.gather(*tasks)
+# async def parallel_tasks():
+#     tasks = [agent1.task(), agent2.task()]
+#     results = await asyncio.gather(*tasks)
+
+
+#----------------------------------------------------
+#CHAT DEF
+
+
+#----------------------------------------------------
+
+
+
+
 
 
 InteractiveChatAgent = Agent(
@@ -107,6 +167,17 @@ InteractiveChatAgent = Agent(
     api_key=api_key,# Pass API key securely
     tools=[create_chat_interface, internet_search_tool] 
 )
+
+
+
+#----------------------------------------------------
+#AGENTS DEF
+
+
+#----------------------------------------------------
+
+
+
 
 PlannerAgent = Agent(
     name="PlannerAgent",
@@ -143,6 +214,17 @@ DeployerAgent = Agent(
     tools=[internet_search_tool]  # Pass API key securely
 )
 
+
+
+
+#----------------------------------------------------
+#TASK DEF
+
+#----------------------------------------------------
+
+
+
+
 loop_interactive_task = Task(
     name="planning"
     description="",
@@ -165,7 +247,8 @@ planning_task = Task(
     agent=PlannerAgent,
     tools=[internet_search_tool()],
     output_file="Planning.md",
-    async_execution=True
+    async_execution=True,
+
 )
 
 decision_task = Task(
@@ -191,9 +274,17 @@ coding_task = Task(
     # Pass API key securely
 )
 
+
+
+#----------------------------------------------------
+# TEAM DEF - MAIN
+#----------------------------------------------------
+
+
 # Create a multi-agent system
 expert_team = PraisonAIAgents(
-    agents=[InteractiveChatAgent, PlannerAgent, CoderAgent, TesterAgent, DeployerAgent],
+    agents=[ #InteractiveChatAgent, 
+    PlannerAgent, CoderAgent, TesterAgent, DeployerAgent],
     process="hierarchical",
     verbose=True  # Enables detailed logging
 )
