@@ -246,9 +246,9 @@ DeployerAgent = Agent(
 
 
 loop_interactive_task = Task(
-    name="loop_interactive_task"
-    description="",
-    expected_output="Gather all the necessary information to form an implementation plan and low-level definition of user requirements.",
+    name="loop_interactive_task",
+    description="Gather all the necessary information to form an implementation plan and low-level definition of user requirements.",
+    expected_output="Low-level requirements gathering for real time implementation planning",
     agent=InteractiveChatAgent,
     tools=[internet_search_tool()],
     
@@ -299,6 +299,41 @@ coding_task = Task(
     # Pass API key securely
 )
 
+tester_task = Task(
+    name="tester_task",
+    description="Test the written code against the implementation/requirements plan",
+    expected_output="Confidence level by test score against the written code",
+    agent=TesterAgent,
+    tools=[internet_search_tool()],
+    output_file="Test.md",
+    context=["planning_task", "coding_task"], # Pass API key securely
+)
+
+
+
+test_decision_task = Task(
+    
+    name="test_decision_task",
+    description="Decision by the confidence level against implementation plan : approve or revise",
+    expected_output="Decision: approve, or revise"
+    context=[loop_interactive_task],
+    task_type="decision",
+    conditions={
+        "approve": ["deployer_task"],
+        "revise": ["loop_interactive_task"],
+    }
+)
+
+
+deployer_task = Task(
+    name="deployer_task",
+    description="Deploys the system in localhost",
+    expected_output="Running localhost of the written code in local machine",
+    agent=DeployerAgent,
+    tools=[internet_search_tool()],
+    # output_file="Test.md",
+    # context=["planning_task", "coding_task"], # Pass API key securely
+)
 
 
 #----------------------------------------------------
