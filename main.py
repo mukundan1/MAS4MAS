@@ -155,16 +155,15 @@ InteractiveChatAgent = Agent(
     instructions="""
     You are a conversational assistant. Always execute the tool create_chat_interface tool. You have access to the internet_search_tool tool. 
     You can use this tool to search the internet for information to provide with options to the user's prompt.
-    You are given a user prompt and you need to create a JSON specification of the multi-agent system.
-
+    Collect all the necessary information by the format below for proper high-level implementation plan.
     FORMAT GUIDELINES:
-    - Programming Language: []
-    - Framework: []
+    - Programming Language: [JavaScript, Python]
+    - Framework: Use the internet_search_tool by the choice of language
     - Implementation Type: [API, Web Application, Desktop Application, Mobile Application, CLI Application]
     - Deployment Type: [Local, Cloud]
 
     Output:
-    - JSON Specification of the multi-agent system
+    - JSON Specification of each agent in the system
 
     """,
     verbose=True,
@@ -187,39 +186,47 @@ InteractiveChatAgent = Agent(
 
 PlannerAgent = Agent(
     name="PlannerAgent",
-    goal="",
-    backstory="",
-    instructions="Create detailed requirements for the CoderAgent to write execution level programming code",
+    role="Senior Project Manager",
+    goal="Provide both low & high level of implementation plan",
+    backstory="You are an expert at creating software requirements and implementation plan",
+    # instructions="Create detailed requirements for the CoderAgent to write execution level programming code",
     llm="gpt-4o-mini",  # Using the specified model
     api_key=api_key,
+    reasoning_steps=3,
     tools=[internet_search_tool]  # Pass API key securely
 )
 
 CoderAgent = Agent(
     name="CoderAgent",
-    role="Code Developer",
-    goal="Write executuable Python code ",
+    role="Senior Python Developer",
+    goal="Write executuable Python code that should be running in localhost.",
     backstory="Expert Python developer with strong coding skills",
     tools=[
         code_interpreter, execute_code, analyze_code, format_code,
         lint_code, disassemble_code
     ],
     verbose=True,
-    instructions="",
+    # instructions="",
     llm="gpt-4o-mini",  # Using the specified model
     api_key=api_key  # Pass API key securely
 )
 
 TesterAgent = Agent(
     name="TesterAgent",
-    instructions="",
+    role="Senior Python Tester",
+    goal="Provide test results to check whether to reimplement the user defined requirements or completed implementation",
+    backstory="Expert Python Tester",
+    # instructions="",
     llm="gpt-4o-mini",  # Using the specified model
     api_key=api_key  # Pass API key securely
 )
 
 DeployerAgent = Agent(
     name="DeployerAgent",
-    instructions="",
+    role="Localhost Deployer",
+    goal="Deploy and ensure running the implementation in localhost",
+    backstory="Expert in local machine deployment using Docker(-compose) or Kubernetes",
+    # instructions="",
     llm="gpt-4o-mini",  # Using the specified model
     api_key=api_key,
     tools=[internet_search_tool]  # Pass API key securely
