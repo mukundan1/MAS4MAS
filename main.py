@@ -7,6 +7,7 @@
 
 
 import os, json, asyncio, logging
+from sys import implementation
 from tabnanny import verbose
 from dotenv import load_dotenv
 from praisonaiagents import Agent, Task, PraisonAIAgents #, Tools
@@ -245,9 +246,9 @@ DeployerAgent = Agent(
 
 
 loop_interactive_task = Task(
-    name="planning"
+    name="loop_interactive_task"
     description="",
-    expected_output="Detailed plan has to be made by the format given",
+    expected_output="Gather all the necessary information to form an implementation plan and low-level definition of user requirements.",
     agent=InteractiveChatAgent,
     tools=[internet_search_tool()],
     
@@ -261,9 +262,9 @@ loop_interactive_task = Task(
 
 
 planning_task = Task(
-    name="planning"
+    name="planning_task"
     description="",
-    expected_output="Detailed plan in JSON format",
+    expected_output="Provide a detailed implementation plan with the user specification plus requirements in JSON format",
     agent=PlannerAgent,
     tools=[internet_search_tool()],
     output_file="Planning.md",
@@ -272,20 +273,24 @@ planning_task = Task(
 )
 
 decision_task = Task(
-    type="decision",
-    name="decision",
-    context=[info_gather_task],
+    
+    name="decision_task",
+    description="Review all the user requirements are fulfilled or not for the next action",
+    expected_output="Decision: approve, revise, or reject"
+    context=[loop_interactive_task],
+    task_type="decision",
     conditions={
-        "success": ["planner_task"],
-        "failure": ["loop_interactive_task"]
+        "approve": ["planner_task"],
+        "revise": ["loop_interactive_task"],
+        "reject": ["loop_interactive_task"]
     }
 )
 
 
 coding_task = Task(
-    name="coding",
-    description="",
-    expected_output="",
+    name="coding_task",
+    description="Codes the provided implementation plan and user defined requirements",
+    expected_output="Python code running in localhost in local machine",
     agent=CoderAgent,
     tools=[internet_search_tool()],
     output_file="Code.md",
