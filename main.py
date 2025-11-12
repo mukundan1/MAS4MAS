@@ -9,9 +9,15 @@
 import os, json, asyncio, logging
 from tabnanny import verbose
 from dotenv import load_dotenv
-from praisonaiagents import Agent, Task, PraisonAIAgents
+from praisonaiagents import Agent, Task, PraisonAIAgents #, Tools
 from duckduckgo_search import DDGS
-from e2b_code_interpreter import Sandbox    
+from e2b_code_interpreter import Sandbox   
+
+from praisonaiagents.tools import (
+    execute_code, analyze_code, format_code,
+    lint_code, disassemble_code
+)
+
 
 from praisonaiagents import (
     register_display_callback,
@@ -39,11 +45,11 @@ register_display_callback(log_to_file)
 # Check for errors
 errors = error_logs(agent_name="AnalysisAgent")
 if errors:
-    print(f"Found {len(errors)} errors")
+    print(f"Found {len(errors)} errors", errors)
 
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='- %(levelname)s - %(message)s:%(asctime)s ')
+logging.basicConfig(format='-%(levelname)s- %(message)s:%(asctime)s ')
 logger = logging.getLogger(__name__)
 
 load_dotenv()
@@ -173,7 +179,7 @@ InteractiveChatAgent = Agent(
 #----------------------------------------------------
 #AGENTS DEF
 
-
+#with instructions
 #----------------------------------------------------
 
 
@@ -181,7 +187,9 @@ InteractiveChatAgent = Agent(
 
 PlannerAgent = Agent(
     name="PlannerAgent",
-    instructions="",
+    goal="",
+    backstory="",
+    instructions="Create detailed requirements for the CoderAgent to write execution level programming code",
     llm="gpt-4o-mini",  # Using the specified model
     api_key=api_key,
     tools=[internet_search_tool]  # Pass API key securely
@@ -190,10 +198,13 @@ PlannerAgent = Agent(
 CoderAgent = Agent(
     name="CoderAgent",
     role="Code Developer",
-    goal="Write and execute Python code",
+    goal="Write executuable Python code ",
     backstory="Expert Python developer with strong coding skills",
-    tools=[code_interpreter],
-    verbose=True
+    tools=[
+        code_interpreter, execute_code, analyze_code, format_code,
+        lint_code, disassemble_code
+    ],
+    verbose=True,
     instructions="",
     llm="gpt-4o-mini",  # Using the specified model
     api_key=api_key  # Pass API key securely
@@ -220,6 +231,7 @@ DeployerAgent = Agent(
 #----------------------------------------------------
 #TASK DEF
 
+#with goal & backstory
 #----------------------------------------------------
 
 
@@ -232,6 +244,7 @@ loop_interactive_task = Task(
     agent=InteractiveChatAgent,
     tools=[internet_search_tool()],
     
+    retain_full_context=True,
     async_execution=True
 
     type="loop",
@@ -285,7 +298,10 @@ coding_task = Task(
 expert_team = PraisonAIAgents(
     agents=[ #InteractiveChatAgent, 
     PlannerAgent, CoderAgent, TesterAgent, DeployerAgent],
+    tasks=[loop_interactive_task, planning_task, decision_task, coding_task],
     process="hierarchical",
+    max_retries=3,
+    manager_llm = "gpt-4",
     verbose=True  # Enables detailed logging
 )
 
@@ -295,3 +311,5 @@ print(response)
 
 if __name__ == "__main__":
     create_chat_interface()
+    expert_team.run_all_tasks()
+    expert_team.get_all_tasks_status()
