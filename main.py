@@ -10,7 +10,7 @@ import os, json, asyncio, logging
 from sys import implementation
 from tabnanny import verbose
 from dotenv import load_dotenv
-from praisonaiagents import Agent, Task, PraisonAIAgents #, Tools
+from praisonaiagents import Agent, Task, PraisonAIAgents, Process, #, Tools
 from duckduckgo_search import DDGS
 from e2b_code_interpreter import Sandbox   
 
@@ -345,13 +345,18 @@ deployer_task = Task(
 expert_team = PraisonAIAgents(
     agents=[ #InteractiveChatAgent, 
     PlannerAgent, CoderAgent, TesterAgent, DeployerAgent],
-    tasks=[loop_interactive_task, planning_task, decision_task, coding_task],
+    tasks=[loop_interactive_task, planning_task, decision_task, coding_task, tester_task, test_decision_task, deployer_task],
     process="hierarchical",
     max_retries=3,
     manager_llm = "gpt-4",
     verbose=True  # Enables detailed logging
 )
 
+process = Process(tasks=[loop_interactive_task, planning_task, decision_task, coding_task, tester_task, test_decision_task, deployer_task],
+    agents=[ #InteractiveChatAgent, 
+    PlannerAgent, CoderAgent, TesterAgent, DeployerAgent])
+
+process.workflow()
 # Start the multi-agent system
 response = expert_team.start()
 print(response)
