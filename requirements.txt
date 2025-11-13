@@ -2,3 +2,6 @@ python-dotenv
 praisonaiagents
 duckduckgo_search
 e2b_code_interpreter 
+black
+pylint 
+autopep8

@@ -7,23 +7,24 @@
 
 
 import os, json, asyncio, logging
+import praisonaiagents
 from sys import implementation
 from tabnanny import verbose
 from dotenv import load_dotenv
-from praisonaiagents import Agent, Task, PraisonAIAgents, Process, #, Tools
+# from praisonaiagents import Agent, Task, PraisonAIAgents, process #, Tools
 from duckduckgo_search import DDGS
 from e2b_code_interpreter import Sandbox   
 
-from praisonaiagents.tools import (
-    execute_code, analyze_code, format_code,
-    lint_code, disassemble_code
-)
+# from praisonaiagents.tools import (
+#     execute_code, analyze_code, format_code,
+#     lint_code, disassemble_code
+# )
 
 
-from praisonaiagents import (
-    register_display_callback,
-    error_logs
-)
+# from praisonaiagents import (
+#     register_display_callback,
+#     error_logs
+# )
 
 
 #----------------------------------------------------
@@ -41,9 +42,9 @@ def log_to_file(event_type, data):
     with open("agent_logs.txt", "a") as f:
         f.write(f"[{event_type}] {data}\n")
 
-register_display_callback(log_to_file)
+register_display_callback(callback=log_to_file, event_types = [ "interaction" , "error", "tool_call" , "instruction" , "generating" , "reflection" ])
 
-# Check for errors
+##Check for errors
 errors = error_logs(agent_name="AnalysisAgent")
 if errors:
     print(f"Found {len(errors)} errors", errors)
@@ -250,10 +251,10 @@ loop_interactive_task = Task(
     description="Gather all the necessary information to form an implementation plan and low-level definition of user requirements.",
     expected_output="Low-level requirements gathering for real time implementation planning",
     agent=InteractiveChatAgent,
-    tools=[internet_search_tool()],
+    tools=[internet_search_tool],
     
     retain_full_context=True,
-    async_execution=True
+    async_execution=True,
 
     type="loop",
     
@@ -262,11 +263,11 @@ loop_interactive_task = Task(
 
 
 planning_task = Task(
-    name="planning_task"
+    name="planning_task",
     description="",
     expected_output="Provide a detailed implementation plan with the user specification plus requirements in JSON format",
     agent=PlannerAgent,
-    tools=[internet_search_tool()],
+    tools=[internet_search_tool],
     output_file="Planning.md",
     async_execution=True,
 
@@ -276,7 +277,7 @@ decision_task = Task(
     
     name="decision_task",
     description="Review all the user requirements are fulfilled or not for the next action",
-    expected_output="Decision: approve, revise, or reject"
+    expected_output="Decision: approve, revise, or reject",
     context=[loop_interactive_task],
     task_type="decision",
     conditions={
@@ -292,7 +293,7 @@ coding_task = Task(
     description="Codes the provided implementation plan and user defined requirements",
     expected_output="Python code running in localhost in local machine",
     agent=CoderAgent,
-    tools=[internet_search_tool()],
+    tools=[internet_search_tool],
     output_file="Code.md",
     context=["planning_task"],
 
@@ -304,7 +305,7 @@ tester_task = Task(
     description="Test the written code against the implementation/requirements plan",
     expected_output="Confidence level by test score against the written code",
     agent=TesterAgent,
-    tools=[internet_search_tool()],
+    tools=[internet_search_tool],
     output_file="Test.md",
     context=["planning_task", "coding_task"], # Pass API key securely
 )
@@ -315,7 +316,7 @@ test_decision_task = Task(
     
     name="test_decision_task",
     description="Decision by the confidence level against implementation plan : approve or revise",
-    expected_output="Decision: approve, or revise"
+    expected_output="Decision: approve, or revise",
     context=[loop_interactive_task],
     task_type="decision",
     conditions={
@@ -330,7 +331,7 @@ deployer_task = Task(
     description="Deploys the system in localhost",
     expected_output="Running localhost of the written code in local machine",
     agent=DeployerAgent,
-    tools=[internet_search_tool()],
+    tools=[internet_search_tool],
     # output_file="Test.md",
     # context=["planning_task", "coding_task"], # Pass API key securely
 )
