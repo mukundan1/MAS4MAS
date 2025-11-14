@@ -11,20 +11,21 @@ import praisonaiagents
 from sys import implementation
 from tabnanny import verbose
 from dotenv import load_dotenv
-# from praisonaiagents import Agent, Task, PraisonAIAgents, process #, Tools
+from praisonaiagents import Agent, Task, PraisonAIAgents #, process #, 
+from praisonaiagents import Process, Tools
 from duckduckgo_search import DDGS
 from e2b_code_interpreter import Sandbox   
 
-# from praisonaiagents.tools import (
-#     execute_code, analyze_code, format_code,
-#     lint_code, disassemble_code
-# )
+from praisonaiagents.tools import (
+    execute_code, analyze_code, format_code,
+    lint_code, disassemble_code
+)
 
 
-# from praisonaiagents import (
-#     register_display_callback,
-#     error_logs
-# )
+from praisonaiagents import (
+    register_display_callback,
+    error_logs
+)
 
 
 #----------------------------------------------------
@@ -41,13 +42,6 @@ from e2b_code_interpreter import Sandbox
 def log_to_file(event_type, data):
     with open("agent_logs.txt", "a") as f:
         f.write(f"[{event_type}] {data}\n")
-
-register_display_callback(callback=log_to_file, event_types = [ "interaction" , "error", "tool_call" , "instruction" , "generating" , "reflection" ])
-
-##Check for errors
-errors = error_logs(agent_name="AnalysisAgent")
-if errors:
-    print(f"Found {len(errors)} errors", errors)
 
 
 # Configure logging
@@ -256,9 +250,9 @@ loop_interactive_task = Task(
     retain_full_context=True,
     async_execution=True,
 
-    type="loop",
+    task_type="loop",
     
-    operation="process_item"
+    # operation="process_item"
 )
 
 
@@ -280,7 +274,7 @@ decision_task = Task(
     expected_output="Decision: approve, revise, or reject",
     context=[loop_interactive_task],
     task_type="decision",
-    conditions={
+    condition={
         "approve": ["planner_task"],
         "revise": ["loop_interactive_task"],
         "reject": ["loop_interactive_task"]
@@ -319,7 +313,7 @@ test_decision_task = Task(
     expected_output="Decision: approve, or revise",
     context=[loop_interactive_task],
     task_type="decision",
-    conditions={
+    condition={
         "approve": ["deployer_task"],
         "revise": ["loop_interactive_task"],
     }
@@ -366,3 +360,12 @@ if __name__ == "__main__":
     create_chat_interface()
     expert_team.run_all_tasks()
     expert_team.get_all_tasks_status()
+
+
+
+register_display_callback(callback=log_to_file, event_types = [ "interaction" , "error", "tool_call" , "instruction" , "generating" , "reflection" ])
+
+##Check for errors
+errors = error_logs(agent_name="AnalysisAgent")
+if errors:
+    print(f"Found {len(errors)} errors", errors)
