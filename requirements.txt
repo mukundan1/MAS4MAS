@@ -5,3 +5,12 @@ e2b_code_interpreter
 black
 pylint 
 autopep8
+prometheus_client
+pytest
+hypothesis
+syrupy
+redis
+aiohttp
+tiktoken
+boto3
+cryptography
