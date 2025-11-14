@@ -1,3 +1,5 @@
+import pytest
+
 @pytest.mark.parametrize("input,expected", [
     ("Hello", "Hi there!"),
     ("How are you?", "I'm doing well!"),
