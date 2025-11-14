@@ -1,4 +1,7 @@
 # tests/mocks/tool_mock.py
+
+from typing import Any
+
 class MockTool:
     def __init__(self, name: str, return_value: Any = None, side_effect: Any = None):
         self.name = name
