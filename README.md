@@ -1,4 +1,5 @@
-# Multi-Agent System (MAS): A Hierarchical AI Agent Framework for Automated Software Development
+- MAS: Multi-Agent System
+# MAS4MAS: A Hierarchical AI Agent Framework for Automated Software Development
 
 ## Abstract
 
@@ -58,12 +59,12 @@ The system implements a **hierarchical process flow** where agents operate in a 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    User Input (Natural Language)                 │
+│                    User Input (Natural Language)                │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              InteractiveChatAgent (Loop Task)                    │
+│              InteractiveChatAgent (Loop Task)                   │
 │  • Gathers requirements via conversational interface            │
 │  • Uses internet_search_tool for research                       │
 │  • Outputs structured requirement specification                 │
@@ -71,15 +72,15 @@ The system implements a **hierarchical process flow** where agents operate in a 
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Decision Task (Quality Gate)                  │
+│                    Decision Task (Quality Gate)                 │
 │  Conditions: approve → planning_task                            │
-│              revise → loop_interactive_task                      │
-│              reject → loop_interactive_task                      │
+│              revise → loop_interactive_task                     │
+│              reject → loop_interactive_task                     │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    PlannerAgent                                  │
+│                    PlannerAgent                                 │
 │  • Analyzes requirements                                        │
 │  • Researches implementation options                            │
 │  • Generates JSON specification with:                           │
@@ -91,16 +92,16 @@ The system implements a **hierarchical process flow** where agents operate in a 
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    CoderAgent                                    │
+│                    CoderAgent                                   │
 │  • Generates Python code from JSON specification                │
 │  • Uses code_interpreter for safe execution                     │
-│  • Implements: main.py, agents.py, tools.py, requirements.txt  │
+│  • Implements: main.py, agents.py, tools.py, requirements.txt   │
 │  • Tools: execute_code, analyze_code, format_code, lint_code    │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    TesterAgent                                   │
+│                    TesterAgent                                  │
 │  • Performs static code analysis                                │
 │  • Validates against original plan                              │
 │  • Generates test report with confidence scores                 │
@@ -108,14 +109,14 @@ The system implements a **hierarchical process flow** where agents operate in a 
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              Test Decision Task (Quality Gate)                   │
+│              Test Decision Task (Quality Gate)                  │
 │  Conditions: approve → deployer_task                            │
 │              revise → loop_interactive_task                     │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    DeployerAgent                                 │
+│                    DeployerAgent                                │
 │  • Generates Docker/Docker Compose configurations               │
 │  • Creates Kubernetes manifests (if needed)                     │
 │  • Ensures localhost deployment                                 │
@@ -842,12 +843,15 @@ Key metrics:
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Install development dependencies: `pip install -r requirements.txt`
-4. Run tests: `pytest`
-5. Format code: `black .`
-6. Lint code: `pylint *.py`
-7. Commit changes: `git commit -m 'Add amazing feature'`
-8. Push to branch: `git push origin feature/amazing-feature`
-9. Open a Pull Request
+  ``` 
+  Optional
+  - 1. Run tests: `pytest`
+  - 2. Format code: `black .`
+  - 3. Lint code: `pylint *.py`
+  ```
+4. Commit changes: `git commit -m 'Add amazing feature'`
+5. Push to branch: `git push origin feature/amazing-feature`
+6. Open a Pull Request
 
 ### Code Style
 
@@ -909,4 +913,4 @@ This system was developed as part of research into:
 
 ---
 
-**Made with ❤️ for the AI Research Community**
+**Made with ❤️ by Mukundan**
