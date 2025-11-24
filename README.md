@@ -1,5 +1,7 @@
-- MAS: Multi-Agent System
 # MAS4MAS: A Hierarchical AI Agent Framework for Automated Software Development
+
+- MAS: Multi-Agent System
+- MAS4MAS: Multi-Agent System ( 4 - for creating ) Multi-Agent System
 
 ## Abstract
 
@@ -303,6 +305,11 @@ The system implements a **hierarchical process flow** where agents operate in a 
 - **Provider**: `pythonjsonlogger`
 - **Features**: Structured logs, log levels, agent-specific logging
 
+#### User Interface (`ui/`)
+- **Separate Code Analyser**: Standalone function with UI implementation
+- **Files**:
+  - `ui/code_analysis_ui.py`: UI for Code Analysis
+
 ---
 
 ## Project Structure
@@ -434,8 +441,7 @@ mas/
 ### Step 1: Clone Repository
 
 ```bash
-git clone <repository-url>
-cd mas
+git clone https://github.com/mukundan1/MAS4MAS.git
 ```
 
 ### Step 2: Create Virtual Environment
@@ -460,6 +466,8 @@ Create a `.env` file in the project root:
 # Required: LLM API Configuration
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_BASE_URL=https://api.openai.com/v1  # Update for compatible APIs
+OPENAI_BASE_URL=https://localhost:8000/v1  # to work with Ollama / local LLM
+
 
 # Required: Code Interpreter
 E2B_API_KEY=your_e2b_api_key_here
@@ -550,7 +558,7 @@ custom_workflow = PraisonAIAgents(
     agents=[Agent1, Agent2, Agent3],
     tasks=[task1, task2, task3],
     process="sequential",  # or "hierarchical", "parallel"
-    max_retries=5,
+    max_retries=5,  # retry for looping / fine-processing 
     manager_llm="gpt-4",
     verbose=True
 )
@@ -631,7 +639,7 @@ The system supports any OpenAI-compatible API by configuring `OPENAI_BASE_URL`:
 # Example: Using Anthropic Claude
 OPENAI_BASE_URL=https://api.anthropic.com/v1
 
-# Example: Using local LLM
+# Example: Using local LLM / Ollama
 OPENAI_BASE_URL=http://localhost:8000/v1
 ```
 
@@ -870,19 +878,19 @@ Key metrics:
 
 ## License
 
-MIT License
+Copyright 2025 Mukundan
 
-Copyright (c) 2024 Mukundan
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+  http://www.apache.org/licenses/LICENSE-2.0
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 ---
 
@@ -891,7 +899,7 @@ copies or substantial portions of the Software.
 ### Frameworks & Libraries
 
 - **[PraisonAI Agents](https://github.com/MervinPraison/PraisonAI)**: Multi-agent orchestration framework
-- **[OpenAI API](https://openai.com)**: Language model API
+- **[OpenAI Compatible API](https://openai.com)**: Compatible API, please refer to the respective provider
 - **[E2B Code Interpreter](https://e2b.dev/)**: Sandboxed code execution
 - **[DuckDuckGo Search](https://duckduckgo.com/)**: Internet search functionality
 
@@ -908,9 +916,9 @@ This system was developed as part of research into:
 ## Contact & Support
 
 - **Issues**: [GitHub Issues](https://github.com/mukundan1/MAS4MAS/issues)
-- **Author**: Mukundan
+- **Author**: [Mukundan](https://linkedin.com/in/mukundan155)
 - **Repository**: [MAS4MAS](https://github.com/mukundan1/MAS4MAS)
 
 ---
 
-**Made with ❤️ by Mukundan**
+**Made with ❤️ by [Mukundan](https://github.com/mukundan1)**
